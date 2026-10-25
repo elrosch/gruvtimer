@@ -5,6 +5,14 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2026-10-25
+
+### Changed
+
+- The Android APK is now signed with the release key instead of the debug
+  key. Android cannot update an app across signing keys, so uninstall 0.1.0
+  before installing 0.1.1 (export your solves or sync them first).
+
 ## [0.1.0] - 2026-10-25
 
 First release.
