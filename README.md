@@ -114,3 +114,16 @@ Local development: run PocketBase 0.40.5 with
 - `server/` – PocketBase migrations, Dockerfile, compose file
 - `src/components/` – Timer, History, Stats, Settings, solve dialog
 - `src/theme.css` – gruvbox dark/light palette
+
+## License and credits
+
+gruvtimer is free software under the [GNU General Public License v3.0 or later](LICENSE).
+
+- Inspired by [Twisty Timer](https://github.com/aricneto/TwistyTimer) and Prisma Puzzle Timer. No code
+  is taken from either.
+- Scrambles and scramble images by [cubing.js](https://github.com/cubing/cubing.js) (MPL-2.0 / GPL-3.0).
+- Colours from [Gruvbox](https://github.com/morhetz/gruvbox) (MIT).
+
+`npm run build` writes the notices of all bundled third-party packages to `dist/THIRD_PARTY_LICENSES.txt`.
+That file ships in the web app, the APK and the Docker image, and is shown in Settings → About →
+Open-source licenses. The Docker image also contains the PocketBase license.

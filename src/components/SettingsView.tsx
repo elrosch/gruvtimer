@@ -84,7 +84,42 @@ export function SettingsView() {
           <input ref={fileInput} type="file" accept="application/json,.json" hidden onChange={e => { onImport(e.target.files?.[0]); e.target.value = '' }} />
         </div>
       </section>
+
+      <AboutCard />
     </div>
+  )
+}
+
+function AboutCard() {
+  const [notices, setNotices] = useState<string | null>(null)
+
+  const showNotices = async () => {
+    try {
+      const res = await fetch('./THIRD_PARTY_LICENSES.txt')
+      setNotices(res.ok ? await res.text() : 'The license file is only included in builds (npm run build).')
+    } catch (e) {
+      setNotices(`Could not load the license file: ${e}`)
+    }
+  }
+
+  return (
+    <section className="card">
+      <h2>About</h2>
+      <div className="row"><span className="muted">Version</span><span>{__APP_VERSION__}</span></div>
+      <div className="row"><span className="muted">License</span><span>GNU GPL v3.0 or later</span></div>
+      <p className="muted small">
+        Inspired by Twisty Timer and Prisma Puzzle Timer. Scrambles and scramble images by cubing.js, colours by Gruvbox.
+      </p>
+      <button onClick={showNotices}>Open-source licenses</button>
+      {notices !== null && (
+        <div className="modal-backdrop" onClick={() => setNotices(null)}>
+          <div className="modal licenses" onClick={e => e.stopPropagation()}>
+            <pre>{notices}</pre>
+            <div className="modal-actions"><button className="primary" onClick={() => setNotices(null)}>Close</button></div>
+          </div>
+        </div>
+      )}
+    </section>
   )
 }
 

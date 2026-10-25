@@ -262,3 +262,6 @@ td.dnf { color: var(--red); }
 .sync-dot.idle { background: var(--green); }
 .sync-dot.syncing { background: var(--yellow); }
 .sync-dot.error { background: var(--red); }
+
+.modal.licenses { width: min(720px, 100%); height: 100%; }
+.modal.licenses pre { flex: 1; overflow: auto; margin: 0; font-size: .75rem; white-space: pre-wrap; color: var(--fg); }

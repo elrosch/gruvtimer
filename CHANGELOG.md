@@ -32,3 +32,5 @@ First release.
 - Offline-first sync between devices through a self-hosted PocketBase server,
   with a Docker image that also serves the web app.
 - Android app (Capacitor).
+- Licensed under GPL-3.0-or-later; version, license and all third-party
+  notices in Settings → About.

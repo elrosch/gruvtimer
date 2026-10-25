@@ -9,6 +9,7 @@ COPY package.json package-lock.json ./
 RUN npm ci
 COPY index.html vite.config.ts tsconfig.json tsconfig.app.json tsconfig.node.json ./
 COPY src src
+COPY scripts scripts
 RUN npm run build
 
 FROM alpine:3.22
@@ -18,10 +19,14 @@ ARG TARGETARCH
 RUN apk add --no-cache ca-certificates tzdata \
     && wget -q -O /tmp/pb.zip "https://github.com/pocketbase/pocketbase/releases/download/v${PB_VERSION}/pocketbase_${PB_VERSION}_linux_${TARGETARCH}.zip" \
     && unzip -q /tmp/pb.zip pocketbase -d /usr/local/bin \
+    && mkdir -p /usr/share/licenses/pocketbase \
+    && unzip -q /tmp/pb.zip LICENSE.md -d /usr/share/licenses/pocketbase \
     && rm /tmp/pb.zip
 
 COPY server/pb_migrations /pb_migrations
 COPY --from=web /app/dist /pb_public
+# gruvtimer's own license; the web app's third-party notices are in /pb_public/THIRD_PARTY_LICENSES.txt
+COPY LICENSE /usr/share/licenses/gruvtimer/LICENSE
 COPY server/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
