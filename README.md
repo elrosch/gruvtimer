@@ -33,7 +33,7 @@ Each solve is its own record because sync works per record. A single JSON file w
 full (4 MB+) on every solve, and two devices would conflict on the whole file instead of on one solve.
 `solves.json` stays the portable backup and exchange format.
 
-Sync works offline first, the same way as casa-pazza:
+Sync works offline first:
 
 - New records get a client-side PocketBase id (15 chars, a-z0-9), so they can be created offline.
 - Local changes mark records `dirty`. Push upserts them through the PocketBase batch API, 200 per request,
@@ -70,11 +70,11 @@ Settings (theme, timer options, graph lines) stay per device.
 the web app:
 
 GitHub Actions builds the image for `linux/amd64` and `linux/arm64` and pushes it to
-`ghcr.io/elrosch/gruvtimer-pocketbase` (`latest` from main, plus `X.Y.Z` for releases). The repository
-is private, so log in to ghcr.io with a token that has `read:packages` first, or build the image locally:
+`ghcr.io/elrosch/gruvtimer-pocketbase` (`latest` from main, plus `X.Y.Z` for releases). Pull it, or build
+the image locally:
 
 ```
-docker compose -f server/docker-compose.yml up -d     # http://<server>:8091
+docker compose -f server/docker-compose.yml up -d     # http://<server>:8091 (host port set in the compose file)
 docker build -f server/Dockerfile -t ghcr.io/elrosch/gruvtimer-pocketbase .   # optional local build
 ```
 
@@ -114,6 +114,17 @@ Local development: run PocketBase 0.40.5 with
 - `server/` – PocketBase migrations, Dockerfile, compose file
 - `src/components/` – Timer, History, Stats, Settings, solve dialog
 - `src/theme.css` – gruvbox dark/light palette
+
+## Contributing
+
+Issues and pull requests are welcome. For bigger changes, please open an issue first so we can agree on the
+approach. Before you open a pull request, run `npm run lint`, `npm test` and `npm run build`. CI runs the same
+checks. By contributing you agree that your contribution is licensed under GPL-3.0-or-later.
+
+## Security
+
+Please don't report security problems in public issues. Report them privately through the repository's
+**Security** tab → *Report a vulnerability*.
 
 ## License and credits
 

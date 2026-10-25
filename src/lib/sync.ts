@@ -4,7 +4,7 @@ import type { StoreName } from './db'
 import type { CategoryRecord, Penalty, PuzzleId, SolveRecord } from './types'
 
 /*
- * Offline-first sync with PocketBase (same approach as casa-pazza):
+ * Offline-first sync with PocketBase:
  * - local writes mark records dirty; push upserts them (batch API) under their client id
  * - pull fetches everything with `updated >= cursor` per collection
  * - realtime events, coming online, returning to the app and a timer trigger syncs

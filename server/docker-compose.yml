@@ -10,7 +10,7 @@ services:
     container_name: gruvtimer-pocketbase
     restart: unless-stopped
     ports:
-      # 8090 is usually taken by casa-pazza's PocketBase
+      # host port 8091, so it doesn't clash with another PocketBase on the default 8090
       - "8091:8090"
     volumes:
       - pb_data:/pb_data
