@@ -1,0 +1,96 @@
+# gruvtimer
+
+Speedcubing timer in the spirit of Twisty Timer / Prisma Puzzle Timer. One TypeScript code base for web,
+Android (Capacitor) and, later, iOS.
+
+## Run
+
+```
+npm install
+npm run dev        # web, http://localhost:5173
+npm test           # statistics unit tests
+npm run android    # builds android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+The Capacitor CLI needs Node 22+. The `android` script borrows Node 22 through `npx -p node@22`, so you can
+stay on Node 20. Once you upgrade Node, `npx cap sync android` works directly.
+iOS: `npx cap add ios` on a Mac.
+
+## Sessions
+
+A session is every solve of one local calendar day for one puzzle + category. Restarting the app or switching
+puzzles and back continues the same session; it rolls over at midnight.
+
+## Storage and sync
+
+| where | what | format |
+|---|---|---|
+| on the device | one record per solve and per category, plus settings | IndexedDB (web and Android webview) |
+| server | the same records, per user | PocketBase collections `solves`, `categories` |
+| export / import | everything at once | `solves.json` (below) |
+
+Each solve is its own record because sync works per record. A single JSON file would be rewritten in
+full (4 MB+) on every solve, and two devices would conflict on the whole file instead of on one solve.
+`solves.json` stays the portable backup and exchange format.
+
+Sync works offline first, the same way as casa-pazza:
+
+- New records get a client-side PocketBase id (15 chars, a-z0-9), so they can be created offline.
+- Local changes mark records `dirty`. Push upserts them through the PocketBase batch API, 200 per request,
+  so the first upload of a big history is quick.
+- Deletes are tombstones (`deleted = true`), so they reach the other devices.
+- Pull fetches `updated >= cursor` per collection.
+- Sync runs on start, after every change (debounced), on realtime events, when the server
+  reconnects, when the app comes back to the foreground, every 5 minutes, and every 30 s while offline.
+- Conflicts: last write wins. A pull never overwrites a local change that hasn't been pushed yet.
+- Logging out keeps all data on the device and marks it unsynced, so the next login uploads it.
+
+Settings (theme, timer options, graph lines) stay per device.
+
+### solves.json
+
+```json
+{
+  "format": "gruvtimer-solves",
+  "version": 1,
+  "categories": { "333": ["Normal", "OH"] },
+  "solves": [
+    {"id":"…","puzzle":"333","category":"Normal","time":12345,"penalty":"none","scramble":"R U R' …","date":"2026-10-24T18:00:00.000Z","comment":"optional"}
+  ]
+}
+```
+
+- `time` is the raw time in ms, without the penalty. `penalty` is `none`, `+2` or `dnf`.
+- Import skips solves it already has, matched by id or by puzzle + date + time.
+- csTimer exports: `node scripts/import-cstimer.mjs <export.txt> solves.json`, then Settings → Import.
+
+## Server
+
+[`server/`](server) holds the PocketBase schema (`pb_migrations/`) and a Docker image that also serves
+the web app:
+
+```
+docker build -f server/Dockerfile -t gruvtimer-pocketbase .
+docker compose -f server/docker-compose.yml up -d     # http://<server>:8091
+```
+
+- Open the installer link from the container logs to create the superuser, or set `PB_ADMIN_EMAIL` and
+  `PB_ADMIN_PASSWORD`.
+- Users sign up in the app (Settings → Sync → Create account) or in the dashboard at `/_/`.
+- Every record belongs to its user, and the API rules only let users see their own records.
+- The Android app needs an **https** server URL: a cleartext http URL is blocked by the webview.
+
+Local development: run PocketBase 0.40.5 with
+`pocketbase serve --migrationsDir=server/pb_migrations --http=127.0.0.1:8091`.
+
+## Code map
+
+- `src/lib/stats.ts` – WCA averages (mo3, ao5…ao1000), rolling series, session summary
+- `src/lib/graph.ts` – graph series (per solve / per session-day), histogram
+- `src/lib/db.ts` – local IndexedDB records
+- `src/lib/sync.ts` – PocketBase sync engine
+- `src/lib/storage.ts` – solves.json export/import, settings, migration from the old file storage
+- `src/lib/store.tsx` – app state, sessions, categories
+- `server/` – PocketBase migrations, Dockerfile, compose file
+- `src/components/` – Timer, History, Stats, Settings, solve dialog
+- `src/theme.css` – gruvbox dark/light palette

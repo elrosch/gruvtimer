@@ -1,0 +1,6 @@
+{
+  "appId": "dev.gruvtimer.app",
+  "appName": "gruvtimer",
+  "webDir": "dist",
+  "android": { "backgroundColor": "#1d2021" }
+}

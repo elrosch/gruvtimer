@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">gruvtimer</string>
+    <string name="title_activity_main">gruvtimer</string>
+    <string name="package_name">dev.gruvtimer.app</string>
+    <string name="custom_url_scheme">dev.gruvtimer.app</string>
+</resources>

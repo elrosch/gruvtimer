@@ -1,0 +1,6 @@
+node_modules
+dist
+android
+data
+server/pb_data
+server/dev-user.env
