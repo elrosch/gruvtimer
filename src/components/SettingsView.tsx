@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { DEFAULT_CATEGORY, puzzleInfo } from '../lib/puzzles'
+import { keyName } from '../lib/format'
 import { exportSolves } from '../lib/storage'
-import { keyName } from './TimerView'
 import { useStore } from '../lib/store'
 import type { ThemeMode } from '../lib/types'
 

@@ -33,3 +33,6 @@ export function formatDay(day: string): string {
     weekday: 'short', year: 'numeric', month: 'short', day: 'numeric',
   })
 }
+
+/** KeyboardEvent.code for display: 'Space' -> 'space', 'KeyF' -> 'F', 'Tab' -> 'Tab' */
+export const keyName = (code: string) => (code === 'Space' ? 'space' : code.replace(/^Key|^Digit/, ''))

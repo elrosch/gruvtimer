@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: 22
+  # keep in sync with server/Dockerfile
+  PB_VERSION: 0.40.5
+
+jobs:
+  check:
+    name: Lint, test & build web
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+
+      - name: Apply PocketBase schema
+        run: |
+          curl -sSLf -o /tmp/pb.zip "https://github.com/pocketbase/pocketbase/releases/download/v${PB_VERSION}/pocketbase_${PB_VERSION}_linux_amd64.zip"
+          unzip -q /tmp/pb.zip pocketbase -d /tmp/pb
+          /tmp/pb/pocketbase serve --http=127.0.0.1:8090 --dir=/tmp/pb_data \
+            --migrationsDir=server/pb_migrations > /tmp/pb.log 2>&1 &
+          for i in $(seq 1 40); do curl -sf http://127.0.0.1:8090/api/health && break; sleep 0.25; done
+          # both collections exist and are readable (empty) for anonymous requests
+          for c in solves categories; do
+            curl -sf "http://127.0.0.1:8090/api/collections/$c/records" | grep -q '"totalItems":0'
+          done
+      - name: PocketBase log
+        if: failure()
+        run: cat /tmp/pb.log || true
+
+  android:
+    name: Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+      - run: npm ci
+      - run: npm run build
+      - run: npx cap sync android
+      # debug-signed release build, so it installs for testing
+      - name: Build APK
+        working-directory: android
+        run: ./gradlew assembleRelease --no-daemon -PversionName="0.0.0-ci.${{ github.run_number }}" -PversionCode=1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gruvtimer-apk
+          path: android/app/build/outputs/apk/release/*.apk
+          retention-days: 14

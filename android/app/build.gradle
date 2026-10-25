@@ -7,8 +7,9 @@ android {
         applicationId "dev.gruvtimer.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        // release builds pass these from the git tag (see .github/workflows/release.yml)
+        versionCode((project.findProperty('versionCode') ?: '1') as Integer)
+        versionName((project.findProperty('versionName') ?: '0.0.0-dev') as String)
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -16,8 +17,24 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    // Release signing comes from android/key.properties (written by CI from secrets).
+    // Without it release builds are signed with the debug key so they still install.
+    def keyProps = new Properties()
+    def keyPropsFile = rootProject.file('key.properties')
+    if (keyPropsFile.exists()) keyPropsFile.withInputStream { keyProps.load(it) }
+    signingConfigs {
+        release {
+            if (keyPropsFile.exists()) {
+                storeFile rootProject.file(keyProps['storeFile'])
+                storePassword keyProps['storePassword']
+                keyAlias keyProps['keyAlias']
+                keyPassword keyProps['keyPassword']
+            }
+        }
+    }
     buildTypes {
         release {
+            signingConfig keyPropsFile.exists() ? signingConfigs.release : signingConfigs.debug
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

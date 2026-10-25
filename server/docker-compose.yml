@@ -1,11 +1,12 @@
 # PocketBase sync backend for gruvtimer (also serves the web app on /).
-# Build the image first: docker build -f server/Dockerfile -t gruvtimer-pocketbase .
+# Image built by GitHub Actions (server-image.yml); or build it yourself with
+#   docker build -f server/Dockerfile -t ghcr.io/elrosch/gruvtimer-pocketbase .
 # First start: open the installer link from the container logs to create the superuser,
 # or set PB_ADMIN_EMAIL / PB_ADMIN_PASSWORD.
 
 services:
   pocketbase:
-    image: gruvtimer-pocketbase:latest
+    image: ghcr.io/elrosch/gruvtimer-pocketbase:latest
     container_name: gruvtimer-pocketbase
     restart: unless-stopped
     ports:

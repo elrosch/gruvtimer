@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { formatSolve, formatTime } from '../lib/format'
+import { formatSolve, formatTime, keyName } from '../lib/format'
 import { perSolveSeries } from '../lib/graph'
 import { useScramble } from '../lib/scramble'
 import { summarize } from '../lib/stats'
@@ -12,9 +12,6 @@ type Phase = 'idle' | 'inspecting' | 'running'
 type Armed = 'none' | 'tap' | 'holding' | 'ready'
 
 const INSPECTION_MS = 15000
-
-/** 'Space' -> 'space', 'KeyF' -> 'F', 'ShiftLeft' -> 'ShiftLeft' */
-export const keyName = (code: string) => (code === 'Space' ? 'space' : code.replace(/^Key|^Digit/, ''))
 
 export function TimerView({ active, onFocusMode, onOpenSolve }: {
   active: boolean

@@ -69,9 +69,13 @@ Settings (theme, timer options, graph lines) stay per device.
 [`server/`](server) holds the PocketBase schema (`pb_migrations/`) and a Docker image that also serves
 the web app:
 
+GitHub Actions builds the image for `linux/amd64` and `linux/arm64` and pushes it to
+`ghcr.io/elrosch/gruvtimer-pocketbase` (`latest` from main, plus `X.Y.Z` for releases). The repository
+is private, so log in to ghcr.io with a token that has `read:packages` first, or build the image locally:
+
 ```
-docker build -f server/Dockerfile -t gruvtimer-pocketbase .
 docker compose -f server/docker-compose.yml up -d     # http://<server>:8091
+docker build -f server/Dockerfile -t ghcr.io/elrosch/gruvtimer-pocketbase .   # optional local build
 ```
 
 - Open the installer link from the container logs to create the superuser, or set `PB_ADMIN_EMAIL` and
@@ -82,6 +86,22 @@ docker compose -f server/docker-compose.yml up -d     # http://<server>:8091
 
 Local development: run PocketBase 0.40.5 with
 `pocketbase serve --migrationsDir=server/pb_migrations --http=127.0.0.1:8091`.
+
+## CI and releases
+
+- **CI** (`.github/workflows/ci.yml`, every push and pull request):
+  - lint, unit tests and web build
+  - applies the PocketBase schema to a fresh server
+  - builds an Android APK, downloadable from the run as `gruvtimer-apk`
+- **Server image** (`server-image.yml`): builds the Docker image and pushes it on main and on version tags.
+- **Releases:**
+  1. Add a section to `CHANGELOG.md`.
+  2. Commit "Release X.Y.Z" and tag `vX.Y.Z`.
+  3. Publish a GitHub release for the tag. `release.yml` builds the APK with versionName `X.Y.Z` and
+     versionCode `X*1000000 + Y*1000 + Z`, and attaches it.
+- **APK signing:** set the secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`,
+  `ANDROID_KEY_ALIAS` and `ANDROID_KEY_PASSWORD` to sign with your own key. Without them the APK is signed
+  with a debug key.
 
 ## Code map
 
