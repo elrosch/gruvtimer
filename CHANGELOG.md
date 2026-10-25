@@ -5,6 +5,15 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.3] - 2026-10-25
+
+### Changed
+
+- New app icon: a 3x3 cube in gruvbox colours, for the Android launcher and as
+  the web app's favicon.
+- The source code is now public at https://github.com/elrosch/gruvtimer, and the
+  server image can be pulled from ghcr.io without logging in.
+
 ## [0.1.2] - 2026-10-25
 
 ### Fixed
