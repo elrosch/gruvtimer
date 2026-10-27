@@ -5,6 +5,7 @@ import { useScramble } from '../lib/scramble'
 import { summarize } from '../lib/stats'
 import { useStore } from '../lib/store'
 import type { Penalty } from '../lib/types'
+import { useWakeLock } from '../lib/wakelock'
 import { TimeChart } from './Charts'
 import { ScrambleImage } from './ScrambleImage'
 
@@ -34,6 +35,7 @@ export function TimerView({ active, onFocusMode, onOpenSolve }: {
   const last = session.find(s => s.id === lastId) ?? null
 
   useEffect(() => onFocusMode(phase !== 'idle'), [phase, onFocusMode])
+  useWakeLock(phase !== 'idle')
 
   useEffect(() => {
     if (phase === 'idle') return
